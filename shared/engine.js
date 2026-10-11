@@ -1,15 +1,17 @@
 /* ============================================================
  * 引导引擎 · 共享底座
- * 把一次「聆听」拆成：导语 → 逐句聆听 → 提问 → 回应 → 揭晓 → 延伸
- * 全程使用内置脚本，不调用任何大模型，离线可用。
+ * 一次「聆听」＝ 导语 → 逐句聆听 → 提问 → 回应 → 揭晓 → 延伸
+ * 聆听发生在页面顶部的 B 站播放器里；提问与回应默认走内置脚本，
+ * 填了 API Key 的话交给大模型润色 —— 但绝不替你把答案说出来。
  *
- * 设计立场：不直接告诉答案。先让人听，再让人说，最后才给结论。
+ * 设计立场：先让人听，再让人说，最后才给结论。
  * ============================================================ */
 (function (global) {
   "use strict";
 
   var Catalog = global.MZCatalog;
-  var Audio = global.MZAudio;
+  var Player = global.MZPlayer;
+  var LLM = global.MZLLM;
 
   var ACK = [
     "嗯，你听到的这个点很重要。",
@@ -35,6 +37,7 @@
     this.answers = [];
     this.partIndex = 0;
     this.awaiting = false;
+    this.askEl = null;
     this.done = false;
     this._ackSeq = 0;
   }
@@ -103,49 +106,22 @@
     return input;
   };
 
-  /* 聆听卡片 */
-  Session.prototype.listenCard = function (part, notes) {
+  /* 聆听卡片：把注意力引到顶部那台真播放器上 */
+  Session.prototype.listenCard = function (part) {
+    var s = this.song;
     var card = el("div", "listen-card");
     var head = el("div", "listen-head");
     head.appendChild(el("span", "listen-label", part.label));
     card.appendChild(head);
+    card.appendChild(el("p", "listen-tip", s.bvid
+      ? "在上面的播放器里听这一段，听两遍，再回答问题。"
+      : "先在上面去 B 站找到这首歌，听这一段，再回答问题。"));
 
-    var self = this;
-
-    if (!notes.length) {
-      var tip = el("p", "listen-tip", "请先播放你自己选的音乐，听的时候留意提示的问题。");
-      card.appendChild(tip);
-      var ok = el("button", "listen-btn", "我听完了");
-      ok.onclick = function () { self.afterListen(part); };
-      card.appendChild(ok);
-      return card;
+    if (s.bvid && part.t != null) {
+      var seekBtn = el("button", "listen-btn", "▶ 从这一句开始听");
+      seekBtn.onclick = function () { Player.seek(part.t); };
+      card.appendChild(seekBtn);
     }
-
-    var dots = el("div", "listen-dots");
-    var dotEls = notes.map(function () { var d = el("i", "dot"); dots.appendChild(d); return d; });
-
-    var btn = el("button", "listen-btn", "▶ 播放这一句");
-    btn.onclick = function () {
-      if (Audio.isPlaying()) {
-        Audio.stop();
-        btn.textContent = "▶ 播放这一句";
-        return;
-      }
-      Audio.ensure();
-      btn.textContent = "■ 停止";
-      Audio.play(notes, {
-        tempo: part.tempo || 0.52,
-        onProgress: function (i) {
-          dotEls.forEach(function (d, k) { d.className = "dot" + (k <= i ? " on" : ""); });
-        },
-        onEnd: function () {
-          btn.textContent = "▶ 再听一遍";
-          dotEls.forEach(function (d) { d.className = "dot"; });
-        }
-      });
-    };
-    card.appendChild(btn);
-    card.appendChild(dots);
     return card;
   };
 
@@ -154,6 +130,9 @@
     var s = this.song;
     this.bot(s.intro);
     this.onStage("导语", 0, s.parts.length);
+    this.bot(el("div", "tip-line", s.bvid
+      ? "播放器已经装在上面 —— 点一下就能听，不用跳走。"
+      : "这首曲子没有预置录音，点上面的按钮去 B 站找一段来听。"));
     this.nextPart();
   };
 
@@ -161,13 +140,11 @@
     var s = this.song;
     if (this.partIndex >= s.parts.length) { this.reveal(); return; }
     var part = s.parts[this.partIndex];
-    var notes = s.custom ? [] : Catalog.parseMotif(s.motif).slice(part.from, part.to);
     this.onStage(part.label, this.partIndex + 1, s.parts.length);
 
     this.bot(el("div", "stage-line", "现在听「" + part.label + "」"));
-    this.bot(this.listenCard(part, notes));
+    this.bot(this.listenCard(part));
 
-    // 听完之后再提问：用「我听完了」按钮推进
     var self = this;
     this.setQuick([{
       label: "我听完这一句了", run: function () { self.afterListen(part); }
@@ -175,11 +152,13 @@
   };
 
   Session.prototype.afterListen = function (part) {
-    var b = this.bot(el("div", "ask-line", part.guide));
-    var hint = el("div", "hint", part.hint);
-    b.appendChild(hint);
-    this.awaiting = true;
     var self = this;
+    var qEl = el("div", "ask-line", part.guide);
+    var b = this.bot(qEl);
+    b.appendChild(el("div", "hint", part.hint));
+    this.askEl = qEl;
+    this.awaiting = true;
+
     this.setInput("把你的感觉说出来（说错也没关系）", function (sess, text) {
       self.answer(text, part);
     });
@@ -188,45 +167,52 @@
       { label: "我想想再说", ghost: true, run: function () { self.setInput("慢慢想，说出来就行", function (sess, text) { self.answer(text, part); }); } },
       { label: "跳过这一句", ghost: true, run: function () { self.skip(part); } }
     ]);
+
+    if (LLM && LLM.ready()) {
+      LLM.talk({ song: this.song, stage: part.label, said: "", builtin: part.guide, want: "question" })
+        .then(function (txt) {
+          if (txt && self.awaiting && self.askEl === qEl && qEl.isConnected) qEl.textContent = txt;
+        });
+    }
   };
 
   Session.prototype.replay = function (part) {
-    var s = this.song;
-    if (s.custom) return;
-    var notes = Catalog.parseMotif(s.motif).slice(part.from, part.to);
-    Audio.ensure();
-    Audio.play(notes, { tempo: part.tempo || 0.52 });
+    if (!this.song.bvid) return;
+    Player.seek(part && part.t != null ? part.t : 0);
   };
 
   Session.prototype.answer = function (text, part) {
     if (!this.awaiting) return;
     this.awaiting = false;
+    this.askEl = null;
     this.user(text);
     this.answers.push({ part: part.label, text: text });
 
-    var ack = ACK[this._ackSeq % ACK.length];
-    this._ackSeq++;
     var self = this;
-    var t = setTimeout(function () {
-      var b = self.bot(ack + "我们接着往下听。");
-      b.classList.add("ack");
-    }, 320);
-    this._pending = t;
+    var builtin = ACK[this._ackSeq % ACK.length];
+    this._ackSeq++;
+    var b = this.bot(el("div", "ack-line", builtin + "我们接着往下听。"));
+
+    var ai = LLM && LLM.ready();
+    if (ai) {
+      LLM.talk({ song: this.song, stage: part.label, said: text, builtin: part.guide, want: "ack" })
+        .then(function (txt) { if (txt && b.isConnected) b.textContent = txt; });
+    }
 
     this.partIndex++;
-    var next = this.partIndex;
     this.clearComposer();
-    setTimeout(function () { self.nextPart(); }, 900);
+    setTimeout(function () { self.nextPart(); }, ai ? 1200 : 800);
   };
 
   Session.prototype.skip = function (part) {
     if (!this.awaiting) return;
     this.awaiting = false;
+    this.askEl = null;
     this.bot("没关系，先往下听。");
     this.partIndex++;
     this.clearComposer();
     var self = this;
-    setTimeout(function () { self.nextPart(); }, 700);
+    setTimeout(function () { self.nextPart(); }, 650);
   };
 
   Session.prototype.reveal = function () {
@@ -240,7 +226,6 @@
   };
 
   Session.prototype.extend = function (s) {
-    var self = this;
     var box = el("div", "extend");
     box.appendChild(el("h4", null, "再听深一点"));
     box.appendChild(el("p", null, s.extend));

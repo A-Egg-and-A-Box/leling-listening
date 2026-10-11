@@ -352,6 +352,36 @@
     }
   ];
 
+  /* ---------- B 站播放源 ----------
+   * 每首曲子预配一个 bvid：点开曲子，播放器直接嵌在页面里放，
+   * 不用跳走。没有预配录音的曲子（如「鉴赏其他曲子」）留空，
+   * 前端会给一个「去 B 站搜」的入口。
+   */
+  var VIDEO = {
+    peter:        { bvid: "BV1Csvee7EtJ", title: "普罗科菲耶夫《彼得与狼》动画版（音乐启蒙）" },
+    elise:        { bvid: "BV1Jnh1zsECX", title: "贝多芬《致爱丽丝》钢琴小品" },
+    ode:          { bvid: "BV1bj411w77E", title: "贝多芬第九交响曲 第四乐章 欢乐颂" },
+    canon:        { bvid: "BV1oE421c7g6", title: "帕赫贝尔《D大调卡农》弦乐版" },
+    molihua:      { bvid: "BV1nj41137Bf", title: "《茉莉花》民乐演奏（古筝）" },
+    danube:       { bvid: "BV1qBgGz3EvG", title: "蓝色多瑙河圆舞曲" },
+    erquan:       { bvid: "BV1MY4y1G77J", title: "阿炳二胡独奏《二泉映月》1950 年原版" },
+    moonlight:    { bvid: "BV1Yp4AzEEha", title: "贝多芬《月光奏鸣曲》第一乐章（肯普夫）" },
+    liangzhu:     { bvid: "BV1Wb4y1d7mq", title: "《梁祝》小提琴协奏曲" },
+    swan:         { bvid: "BV1KQUSBrEiu", title: "柴可夫斯基《天鹅湖》管弦乐组曲" },
+    fate:         { bvid: "BV1GA4m157vJ", title: "贝多芬 c 小调第五交响曲「命运」" },
+    moldau:       { bvid: "BV1H8411r7JJ", title: "斯美塔那《沃尔塔瓦河》（卡拉扬 / 柏林爱乐）" },
+    overture1812: { bvid: "BV19N41187DE", title: "柴可夫斯基《1812 序曲》" },
+    pictures:     { bvid: "BV1qVpFeCEnz", title: "穆索尔斯基《图画展览会》" },
+    neworld:      { bvid: "BV1sN411778U", title: "德沃夏克《第九交响曲「自新大陆」》" },
+    morning:      { bvid: "BV1AWBYB8E2T", title: "格里格《培尔·金特》组曲之《晨景》" },
+    rite:         { bvid: "BV1J7SQBiET1", title: "斯特拉文斯基《春之祭》（拉特尔 / 柏林爱乐）" }
+  };
+
+  SONGS.forEach(function (s) {
+    var v = VIDEO[s.id];
+    if (v) { s.bvid = v.bvid; s.videoTitle = v.title; }
+  });
+
   global.MZCatalog = {
     levels: LEVELS,
     songs: SONGS,

@@ -24,18 +24,18 @@ html.fs-3 {
   --bg: #FBF6EF;
   --card: #FFFFFF;
   --card2: #F5EBDF;
-  --border: #D8C6AF;
-  --text: #241E19;
+  --border: #E7DACB;
+  --text: #2E2723;
   --muted: #6B5F56;
 
-  --accent: #B85C2E;
-  --accent-soft: rgba(184, 92, 46, .12);
-  --gold: #B58A2E;
-  --gold-soft: #FBF0D8;
+  --accent: #C2703D;
+  --accent-soft: rgba(194, 112, 61, .12);
+  --gold: #E0A458;
+  --gold-soft: #F7E3D3;
   --gold-text: #8A6620;
 
   --grad: linear-gradient(135deg, #C2703D, #E0A458);
-  --grad-user: linear-gradient(135deg, #5E8B6E, #7E9B87);
+  --grad-user: linear-gradient(135deg, #7E9B87, #9FB8A5);
   --on-accent: #FFFFFF;
   --bar-bg: rgba(251, 246, 239, .94);
   --bot-bubble: #FFFFFF;
@@ -84,7 +84,6 @@ html.fs-3 {
   color: var(--text); cursor: pointer; font-family: inherit; font-size: var(--fs-sm);
 }
 .fs-bar button.active { background: var(--grad); color: var(--on-accent); border-color: transparent; font-weight: 700; }
-.toggle-btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
 
 /* 陪听提示条 */
 .companion {

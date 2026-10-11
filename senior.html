@@ -28,6 +28,7 @@
       </div>
       <button class="icon-btn toggle-btn" id="voiceBtn" onclick="Senior.toggleVoice(this)">🔊 朗读：关</button>
       <button class="icon-btn toggle-btn" id="compBtn" onclick="Senior.toggleCompanion(this)">👥 陪听：关</button>
+      <button class="icon-btn toggle-btn" id="aiBtn" title="可选：填上自己的大模型密钥">🤖 AI：关</button>
       <button class="icon-btn" id="recBtn">📜 我的聆听<span id="recCount" class="hidden"></span></button>
     </div>
   </header>
@@ -57,6 +58,7 @@
       <div class="at" id="subTitle"></div>
     </div>
     <div class="companion" id="companion" aria-live="polite"></div>
+    <div class="player-dock" id="playerDock"></div>
     <div class="stage-bar" id="stageBar"></div>
     <div class="chat" id="chat" aria-live="polite"></div>
     <div class="composer" id="composer"></div>
@@ -74,7 +76,8 @@
 </div>
 
 <script src="shared/catalog.js"></script>
-<script src="shared/audio.js"></script>
+<script src="shared/player.js"></script>
+<script src="shared/llm.js"></script>
 <script src="shared/engine.js"></script>
 <script src="shared/app.js"></script>
 <script src="shared/senior.js"></script>

@@ -3,6 +3,48 @@
  * 只负责布局与结构，颜色/字号全部走 CSS 变量，
  * 由「通用版」和「乐龄版」各自覆盖变量形成两套皮肤。
  * ============================================================ */
+
+/* ---------- 默认皮肤：暖色人文（两个版本共用，取自开题 PPT 的
+   一套暖米色 / 陶土橘 / 琥珀 / 鼠尾草绿配色） ---------- */
+:root {
+  --bg: #FBF6EF;
+  --card: #FFFFFF;
+  --card2: #F5EBDF;
+  --border: #E7DACB;
+  --text: #2E2723;
+  --muted: #6B5F56;
+
+  --accent: #C2703D;
+  --accent-soft: rgba(194, 112, 61, .12);
+  --gold: #E0A458;
+  --gold-soft: #F7E3D3;
+  --gold-text: #8A6620;
+
+  --grad: linear-gradient(135deg, #C2703D, #E0A458);
+  --grad-user: linear-gradient(135deg, #7E9B87, #9FB8A5);
+  --on-accent: #FFFFFF;
+  --bar-bg: rgba(251, 246, 239, .94);
+  --bot-bubble: #FFFFFF;
+
+  --font: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --fs: 16px;
+  --fs-lg: 17.5px;
+  --fs-sm: 14px;
+  --fs-xs: 12px;
+  --fs-hero: 32px;
+
+  --sp-3: 14px;
+  --sp-4: 18px;
+  --radius: 18px;
+  --app-w: 820px;
+  --card-w: 156px;
+  --cover-h: 106px;
+  --btn: 40px;
+  --av: 34px;
+  --logo: 32px;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
@@ -222,5 +264,66 @@ html, body { height: 100%; }
 .rec .rt { font-weight: 700; font-size: var(--fs); }
 .rec .rd { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
 .rec .ra { font-size: var(--fs-sm); color: var(--muted); margin-top: 6px; }
+
+/* ---------- 播放器坞 ---------- */
+.player-dock { flex-shrink: 0; display: none; padding: 12px var(--sp-4) 4px; }
+.player-dock.on { display: block; }
+.player-dock.min .frame-box { display: none; }
+.player-card {
+  border: 1px solid var(--border); background: var(--card);
+  border-radius: var(--radius); padding: 10px;
+  box-shadow: 0 4px 16px rgba(90, 70, 50, .06);
+}
+.frame-box {
+  max-width: 520px; margin: 0 auto; aspect-ratio: 16 / 9;
+  background: #000; border-radius: 12px; overflow: hidden;
+}
+.frame-box iframe { width: 100%; height: 100%; display: block; border: 0; }
+.player-bar { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.player-title {
+  flex: 1; min-width: 0; font-size: var(--fs-sm); font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.player-link { font-size: var(--fs-sm); color: var(--accent); text-decoration: none; font-weight: 700; white-space: nowrap; }
+.player-link:hover { text-decoration: underline; }
+.player-link.strong {
+  display: inline-block; margin-top: 8px; padding: 9px 18px;
+  border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent);
+}
+.player-fold {
+  font-family: inherit; font-size: var(--fs-xs); padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card2); color: var(--text); cursor: pointer;
+}
+.player-seek { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; font-size: var(--fs-sm); color: var(--muted); }
+.player-seek .ps-in {
+  width: 56px; padding: 7px 8px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--card2); color: var(--text); font-family: inherit; font-size: var(--fs-sm); text-align: center;
+}
+.player-seek .ps-go {
+  padding: 7px 16px; border-radius: 999px; border: none; background: var(--grad);
+  color: var(--on-accent); font-family: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer;
+}
+.search-card .search-line { font-size: var(--fs-sm); margin-bottom: 6px; }
+.tip-line { font-size: var(--fs-sm); color: var(--muted); }
+.ack-line { font-weight: 600; }
+.toggle-btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ---------- AI 设置面板 ---------- */
+.llm-mask .sheet { max-width: 560px; }
+.sheet-note { font-size: var(--fs-sm); color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+.sheet .field { display: block; margin-bottom: 12px; }
+.sheet .field .lb { display: block; font-size: var(--fs-sm); font-weight: 700; margin-bottom: 6px; }
+.sheet .field input, .sheet .field select {
+  width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card2); color: var(--text); font-family: inherit; font-size: var(--fs-sm); outline: none;
+}
+.sheet .field input:focus, .sheet .field select:focus { border-color: var(--accent); }
+.check-row { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; font-size: var(--fs-sm); cursor: pointer; }
+.check-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+.sheet-msg { font-size: var(--fs-sm); color: var(--muted); white-space: pre-wrap; margin: 4px 0 14px; min-height: 1.2em; }
+.sheet-msg.ok { color: #4F7A5E; }
+.sheet-msg.bad { color: #A33B2A; }
+.sheet-btns { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.icon-btn.strong { background: var(--grad); color: var(--on-accent); border-color: transparent; font-weight: 700; }
 
 .hidden { display: none !important; }

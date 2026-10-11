@@ -7,7 +7,8 @@
   "use strict";
 
   var Catalog = global.MZCatalog;
-  var Audio = global.MZAudio;
+  var Player = global.MZPlayer;
+  var LLM = global.MZLLM;
 
   var App = {
     senior: false,
@@ -25,8 +26,11 @@
         filter: $("filter"), search: $("search"), chat: $("chat"),
         composer: $("composer"), stageBar: $("stageBar"), subTitle: $("subTitle"),
         recordsSheet: $("recordsSheet"), recordsBody: $("recordsBody"),
-        recBtn: $("recBtn"), recCount: $("recCount"), fsBar: $("fsBar")
+        recBtn: $("recBtn"), recCount: $("recCount"), fsBar: $("fsBar"),
+        playerDock: $("playerDock"), aiBtn: $("aiBtn")
       };
+
+      this.syncAiBtn();
 
       if (this.senior) {
         this.fsLevel = 2;
@@ -51,6 +55,9 @@
       }
       if (this.el.recBtn) {
         this.el.recBtn.onclick = function () { self.showRecords(); };
+      }
+      if (this.el.aiBtn) {
+        this.el.aiBtn.onclick = function () { LLM.open(); };
       }
       if (this.el.recordsSheet) {
         this.el.recordsSheet.addEventListener("click", function (e) {
@@ -149,7 +156,8 @@
 
     /* ---------- 路由 ---------- */
     goHome: function () {
-      if (this.session) { Audio.stop(); this.session = null; }
+      if (this.session) { this.session = null; }
+      Player.undock();
       this.el.chatView.classList.add("hidden");
       this.el.home.classList.remove("hidden");
       this.el.recBtn.classList.remove("hidden");
@@ -165,6 +173,7 @@
       this.el.chat.innerHTML = "";
       this.el.subTitle.textContent = song.emoji + " " + song.title;
       this.el.stageBar.innerHTML = "";
+      Player.dock(this.el.playerDock, song);
 
       var self = this;
       this.session = new global.MZEngine.Session({
@@ -196,6 +205,16 @@
       for (var k = 0; k < chips.length; k++) {
         chips[k].className = "stage-chip" + (chips[k].textContent === label ? " active" : "");
       }
+    },
+
+    /* ---------- AI 入口状态 ---------- */
+    syncAiBtn: function () {
+      var b = this.el.aiBtn;
+      if (!b) return;
+      var on = LLM.ready();
+      b.classList.toggle("on", on);
+      b.textContent = "🤖 AI：" + (on ? "开" : "关");
+      b.title = on ? "AI 引导已启用，点这里修改设置" : "点这里填写自己的大模型密钥，开启 AI 引导（可选）";
     },
 
     /* ---------- 我的聆听 ---------- */

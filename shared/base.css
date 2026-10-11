@@ -351,3 +351,16 @@ html, body { height: 100%; }
 .tool-card .tc-btn:hover { filter: brightness(1.06); }
 .tool-card .tc-err { font-size: var(--fs-xs); color: #A33B2A; margin-top: 8px; min-height: 1em; }
 .listen-fine { font-size: var(--fs-xs); color: var(--muted); margin-top: 8px; }
+
+/* ---------- 「只听这一句」：到点自动停 ---------- */
+.seg-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.seg-line .ps-in { width: 86px; }
+.seg-status { display: none; margin-top: 10px; font-size: var(--fs-sm); font-weight: 700; }
+.seg-status.on { display: block; color: var(--accent); }
+.seg-status.done { color: var(--sage, #7E9B87); }
+.listen-btn.playing { filter: saturate(1.05); }
+.listen-btn.playing::after {
+  content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 10px;
+  border-radius: 50%; background: currentColor; animation: segPulse 1s infinite;
+}
+@keyframes segPulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }

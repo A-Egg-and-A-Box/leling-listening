@@ -35,13 +35,26 @@
     onBotMessage: function (node) {
       var bubble = node.querySelector(".bubble");
       if (!bubble) return;
+      var self = this;
+
+      /* 每条消息都配一个「读给我听」，随时可以再听一遍 */
+      if (!bubble.querySelector(".speak-btn")) {
+        var sb = document.createElement("button");
+        sb.type = "button";
+        sb.className = "speak-btn";
+        sb.textContent = "🔊 读给我听";
+        sb.setAttribute("aria-label", "朗读这段话");
+        sb.onclick = function () { self.speak(self.readable(bubble)); };
+        bubble.appendChild(sb);
+      }
+
       if (this.voice) this.speak(this.readable(bubble));
       if (this.companion) this.updateBanner(bubble);
     },
 
     readable: function (bubble) {
       var t = bubble.innerText || bubble.textContent || "";
-      return t.replace(/[▶■➤🎵←]/g, " ").replace(/\s+/g, " ").trim();
+      return t.replace(/[▶■➤🎵←🔊✓]/g, " ").replace(/读给我听/g, " ").replace(/\s+/g, " ").trim();
     },
 
     speak: function (text) {

@@ -6,6 +6,8 @@
  *
  * B 站播放器不开放控制接口，所以「跳到某一句」＝ 重新载入 iframe
  * 并带上 t=秒 参数，这也正是老师原版的做法。
+ * 「听这一句」还能限定时长：到点把 iframe 重新载入成暂停状态（不带
+ * autoplay），声音就停住了 —— 不用手动按暂停，也不会一路放下去。
  * ============================================================ */
 (function (global) {
   "use strict";
@@ -20,9 +22,11 @@
     iframe: null,
     at: 0,
     page: 1,
+    segTimer: null,
 
     /* 把播放器挂到页面顶部的坞里 */
     dock: function (container, song) {
+      this.stopSeg();
       this.el = container;
       this.song = song;
       this.at = 0;
@@ -36,6 +40,7 @@
     },
 
     undock: function () {
+      this.stopSeg();
       if (this.el) {
         this.el.innerHTML = "";
         this.el.classList.remove("on");
@@ -142,13 +147,39 @@
       return wrap;
     },
 
-    /* 跳到第 sec 秒（可带分 P）开始播 */
+    /* 跳到第 sec 秒（可带分 P）开始播，之后一直放着（自由听） */
     seek: function (sec, page) {
       if (!this.iframe || !this.song || !this.song.bvid) return false;
+      this.stopSeg();
       this.at = Math.max(0, Math.floor(sec) || 0);
       if (page) this.page = page;
       this.iframe.src = this.src(this.song.bvid, this.at, true, this.page);
       return true;
+    },
+
+    /* 只听这一段：从 sec 秒起播 dur 秒，到点自动停（重载为暂停态） */
+    playSeg: function (sec, dur, page, onEnd) {
+      if (!this.iframe || !this.song || !this.song.bvid) return false;
+      this.stopSeg();
+      this.at = Math.max(0, Math.floor(sec) || 0);
+      var d = Math.max(4, Math.floor(dur) || 30);
+      if (page) this.page = page;
+      this.iframe.src = this.src(this.song.bvid, this.at, true, this.page);
+      var self = this;
+      this.segTimer = setTimeout(function () {
+        self.segTimer = null;
+        /* 重载为「暂停在句尾」：旧页面卸载 → 声音立刻停住 */
+        self.iframe.src = self.src(self.song.bvid, self.at + d, false, self.page);
+        if (typeof onEnd === "function") onEnd(d);
+      }, d * 1000);
+      return true;
+    },
+
+    stopSeg: function () {
+      if (this.segTimer) {
+        clearTimeout(this.segTimer);
+        this.segTimer = null;
+      }
     },
 
     current: function () { return this.at; }

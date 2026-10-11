@@ -33,6 +33,41 @@
     return m + ":" + (s < 10 ? "0" : "") + s;
   }
 
+  /* 把「1:20」「80」这类输入转成秒；认不出返回 null */
+  function parseMMSS(v) {
+    v = (v || "").trim();
+    if (!v) return null;
+    var m = v.match(/^(\d+)\s*[:：]\s*(\d{1,2})$/);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    if (/^\d{1,5}$/.test(v)) return parseInt(v, 10);
+    return null;
+  }
+
+  /* 这一句大概多长：
+     优先用「下一句起点 − 这一句起点」；拿不到就用与上一句的间距；
+     最后一句「合起来」会回到开头，按两句合起来算（间距 ×2）。
+     都拿不到时退回 30 秒。 */
+  function partGap(parts, i) {
+    var cur = parts[i];
+    if (!cur || cur.t == null) return 0;
+    var next = parts[i + 1];
+    if (next && next.t != null && next.t > cur.t) return next.t - cur.t;
+    var prev = parts[i - 1];
+    if (prev && prev.t != null && prev.t < cur.t) return cur.t - prev.t;
+    if (prev && prev.t != null && prev.t > cur.t) return (prev.t - cur.t) * 2;
+    return 0;
+  }
+
+  function partDuration(song, i) {
+    var g = partGap(song.parts || [], i);
+    return g >= 4 ? g : 30;
+  }
+
+  function setStatus(node, text, kind) {
+    node.textContent = text;
+    node.className = "seg-status on" + (kind ? " " + kind : "");
+  }
+
   function Session(opts) {
     this.song = opts.song;
     this.chat = opts.chatEl;
@@ -44,6 +79,7 @@
     this.awaiting = false;
     this.askEl = null;
     this.done = false;
+    this.lastSeg = null;
     this._ackSeq = 0;
   }
 
@@ -111,24 +147,65 @@
     return input;
   };
 
-  /* 聆听卡片：把注意力引到顶部那台真播放器上 */
+  /* 聆听卡片：把注意力引到顶部那台真播放器上，并让这一句到点自动停下 */
   Session.prototype.listenCard = function (part) {
     var s = this.song;
+    var self = this;
+    var dur = partDuration(s, this.partIndex);
     var card = el("div", "listen-card");
     var head = el("div", "listen-head");
     head.appendChild(el("span", "listen-label", part.label));
     card.appendChild(head);
-    card.appendChild(el("p", "listen-tip", s.bvid
-      ? "在上面的播放器里听这一段，听两遍，再回答问题。"
-      : "先在上面去 B 站找到这首歌，听这一段，再回答问题。"));
 
-    if (s.bvid && part.t != null) {
-      var at = part.t;
-      var seekBtn = el("button", "listen-btn", "▶ 从 " + mmss(at) + " 开始听「" + part.label + "」");
-      seekBtn.onclick = function () { Player.seek(at, part.p); };
-      card.appendChild(seekBtn);
-      card.appendChild(el("div", "listen-fine", "落点不对？用播放器下方的「跳到 分:秒」自己微调。"));
+    if (!s.bvid) {
+      card.appendChild(el("p", "listen-tip", "先在上面去 B 站找到这首歌，听这一段，再回答问题。"));
+      return card;
     }
+
+    var status = el("div", "seg-status", "");
+
+    function run(sec, page, btn) {
+      var ok = Player.playSeg(sec, dur, page, function () {
+        setStatus(status, "✓ 这一句听完了（已自动暂停）。想回味可以再听一遍。", "done");
+        btn.classList.remove("playing");
+        btn.textContent = "▶ 再听这一句（约 " + dur + " 秒）";
+      });
+      if (!ok) { setStatus(status, "播放器还没准备好，请稍等一下再点。"); return; }
+      self.lastSeg = { sec: sec, page: page };
+      setStatus(status, "🎧 正在播放这一句……约 " + dur + " 秒后会自动停下。");
+      btn.classList.add("playing");
+      btn.textContent = "🔊 正在播这一句…（约 " + dur + " 秒）";
+    }
+
+    if (part.t != null) {
+      card.appendChild(el("p", "listen-tip",
+        "点下面的按钮，从 " + mmss(part.t) + " 开始只听这一句；约 " + dur + " 秒后会自己停下来。"));
+      var playBtn = el("button", "listen-btn", "▶ 听「" + part.label + "」· 从 " + mmss(part.t) + " 起（约 " + dur + " 秒）");
+      playBtn.onclick = function () { run(part.t, part.p, playBtn); };
+      card.appendChild(playBtn);
+      card.appendChild(el("div", "listen-fine", "落点不太对？用播放器下方的「跳到 分:秒」微调，再回来点这个按钮。"));
+    } else {
+      card.appendChild(el("p", "listen-tip",
+        "这首曲子没有预置时间点。在播放器里找到这一句的起点，把时间填在下面，就能只听这一段、到点自动停。"));
+      var line = el("div", "seg-line");
+      line.appendChild(el("span", "ps-label", "这一句从"));
+      var ti = el("input", "ps-in");
+      ti.type = "text";
+      ti.placeholder = "1:20";
+      ti.setAttribute("inputmode", "numeric");
+      line.appendChild(ti);
+      line.appendChild(el("span", "ps-label", "开始"));
+      var goBtn = el("button", "listen-btn", "▶ 只听这一句（约 " + dur + " 秒）");
+      goBtn.onclick = function () {
+        var sec = parseMMSS(ti.value);
+        if (sec == null) { ti.focus(); setStatus(status, "请按 分:秒 填，例如 1:20。"); return; }
+        run(sec, part.p, goBtn);
+      };
+      line.appendChild(goBtn);
+      card.appendChild(line);
+    }
+
+    card.appendChild(status);
     return card;
   };
 
@@ -138,7 +215,7 @@
     this.bot(s.intro);
     this.onStage("导语", 0, s.parts.length);
     this.bot(el("div", "tip-line", s.bvid
-      ? "播放器已经装在上面 —— 点一下就能听，不用跳走。"
+      ? "播放器已经装在上面 —— 每句点一下「听这一句」，从对应位置开始，到点会自己停下来。"
       : "这首曲子没有预置录音，点上面的按钮去 B 站找一段来听。"));
     this.nextPart();
   };
@@ -185,7 +262,10 @@
 
   Session.prototype.replay = function (part) {
     if (!this.song.bvid) return;
-    Player.seek(part && part.t != null ? part.t : 0, part && part.p);
+    var dur = partDuration(this.song, this.partIndex);
+    if (part && part.t != null) { Player.playSeg(part.t, dur, part.p); return; }
+    if (this.lastSeg) { Player.playSeg(this.lastSeg.sec, dur, this.lastSeg.page); return; }
+    Player.seek(0);
   };
 
   Session.prototype.answer = function (text, part) {

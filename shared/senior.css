@@ -6,48 +6,52 @@
  *  - 边框加粗，减少「细线看不清」的问题
  * ============================================================ */
 
-/* 字号三档（由 app.js 切 class） */
+/* 字号三档（由 app.js 切 class）—— 比通用版整体大一档 */
 html.fs-1 {
-  --fs: 17px; --fs-lg: 19px; --fs-sm: 15.5px; --fs-xs: 13px; --fs-hero: 34px;
-  --btn: 46px; --av: 38px; --card-w: 168px; --cover-h: 112px;
+  --fs: 19px; --fs-lg: 21px; --fs-sm: 17px; --fs-xs: 14.5px; --fs-hero: 36px;
+  --btn: 52px; --av: 42px; --card-w: 178px; --cover-h: 118px;
 }
 html.fs-2 {
-  --fs: 20px; --fs-lg: 22.5px; --fs-sm: 18px; --fs-xs: 15px; --fs-hero: 38px;
-  --btn: 54px; --av: 44px; --card-w: 188px; --cover-h: 124px;
+  --fs: 22px; --fs-lg: 25px; --fs-sm: 19.5px; --fs-xs: 16.5px; --fs-hero: 42px;
+  --btn: 60px; --av: 48px; --card-w: 200px; --cover-h: 132px;
 }
 html.fs-3 {
-  --fs: 24px; --fs-lg: 27px; --fs-sm: 21px; --fs-xs: 17px; --fs-hero: 44px;
-  --btn: 62px; --av: 50px; --card-w: 210px; --cover-h: 138px;
+  --fs: 26px; --fs-lg: 30px; --fs-sm: 23px; --fs-xs: 18.5px; --fs-hero: 50px;
+  --btn: 70px; --av: 56px; --card-w: 224px; --cover-h: 148px;
 }
 
 :root {
-  --bg: #FBF6EF;
+  /* 高对比暖色：文字压得更深、描边更清楚，让老人看得清 */
+  --bg: #FCF7F0;
   --card: #FFFFFF;
-  --card2: #F5EBDF;
-  --border: #E7DACB;
-  --text: #2E2723;
-  --muted: #6B5F56;
+  --card2: #F3E7D8;
+  --border: #D3BC9F;
+  --text: #1F1915;
+  --muted: #4A4038;
 
-  --accent: #C2703D;
-  --accent-soft: rgba(194, 112, 61, .12);
-  --gold: #E0A458;
-  --gold-soft: #F7E3D3;
-  --gold-text: #8A6620;
+  --accent: #A85618;
+  --accent-soft: rgba(168, 86, 24, .14);
+  --gold: #C98A2E;
+  --gold-soft: #F6E2C6;
+  --gold-text: #6E4A10;
 
-  --grad: linear-gradient(135deg, #C2703D, #E0A458);
-  --grad-user: linear-gradient(135deg, #7E9B87, #9FB8A5);
+  --grad: linear-gradient(135deg, #A85618, #C98A2E);
+  --grad-user: linear-gradient(135deg, #5F8069, #86A48F);
   --on-accent: #FFFFFF;
-  --bar-bg: rgba(251, 246, 239, .94);
+  --bar-bg: rgba(252, 247, 240, .96);
   --bot-bubble: #FFFFFF;
 
   --font: "Microsoft YaHei", "PingFang SC", -apple-system, "Segoe UI", sans-serif;
 
-  --sp-3: 16px;
-  --sp-4: 22px;
-  --radius: 20px;
-  --app-w: 1000px;
-  --logo: 36px;
+  --sp-3: 18px;
+  --sp-4: 26px;
+  --radius: 22px;
+  --app-w: 1040px;
+  --logo: 38px;
 }
+
+/* 正文行距更松，长句更好读 */
+.bubble { line-height: 1.8; }
 
 /* 加粗边框，提升辨识度 */
 .bubble, .track-card, .icon-btn, .chip, .quick-btn, .listen-card,
@@ -103,3 +107,47 @@ html.fs-3 {
   font-size: var(--fs-sm); color: var(--muted);
 }
 .senior-hint b { color: var(--accent); }
+
+/* ---------- 一步一按钮：按钮铺满、点得准 ---------- */
+.quick-area { flex-direction: column; }
+.quick-btn, .listen-btn {
+  width: 100%; min-height: var(--btn); font-size: var(--fs-lg);
+  border-radius: 16px; justify-content: center;
+}
+.chip { min-height: 54px; font-size: var(--fs-sm); }
+.send-btn { width: var(--btn); height: var(--btn); }
+.seg-line { gap: 12px; }
+.seg-line .ps-in { width: 110px; padding: 12px 14px; font-size: var(--fs-sm); }
+
+/* ---------- 每条消息的「读给我听」（纯听觉也能用） ---------- */
+.speak-btn {
+  display: inline-block; margin-top: 12px; padding: 10px 20px; border-radius: 999px;
+  border: 2px solid var(--border); background: var(--card2); color: var(--accent);
+  font-family: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer;
+}
+.speak-btn:hover { background: var(--accent-soft); }
+.speak-btn:focus-visible { outline: 4px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- 首页：一个大按钮 + 四步说明（对齐开题报告） ---------- */
+.senior-cta {
+  display: block; margin: 22px auto 0; padding: 18px 34px; border: none; border-radius: 999px;
+  background: var(--grad); color: var(--on-accent); font-family: inherit;
+  font-size: var(--fs-lg); font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(120, 70, 20, .22);
+}
+.senior-cta:hover { filter: brightness(1.06); }
+.senior-steps {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  max-width: var(--app-w); margin: 0 auto 22px; padding: 0 var(--sp-4);
+}
+.senior-steps .ss {
+  background: var(--card); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 14px 12px; text-align: center; display: flex; flex-direction: column; gap: 6px;
+}
+.senior-steps .ss b {
+  font-size: var(--fs-lg); color: var(--on-accent); background: var(--grad);
+  width: 38px; height: 38px; line-height: 38px; border-radius: 50%; margin: 0 auto;
+}
+.senior-steps .ss span { font-size: var(--fs); font-weight: 700; }
+.senior-steps .ss i { font-size: var(--fs-xs); color: var(--muted); font-style: normal; }
+@media (max-width: 720px) { .senior-steps { grid-template-columns: repeat(2, 1fr); } }

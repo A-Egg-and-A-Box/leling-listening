@@ -26,9 +26,8 @@
         <button data-fs="2" onclick="MZApp.setFs(2)">中</button>
         <button data-fs="3" onclick="MZApp.setFs(3)">大</button>
       </div>
-      <button class="icon-btn toggle-btn" id="voiceBtn" onclick="Senior.toggleVoice(this)">🔊 朗读：关</button>
+      <button class="icon-btn toggle-btn" id="voiceBtn" onclick="Senior.toggleVoice(this)">🔊 朗读：开</button>
       <button class="icon-btn toggle-btn" id="compBtn" onclick="Senior.toggleCompanion(this)">👥 陪听：关</button>
-      <button class="icon-btn toggle-btn" id="aiBtn" title="可选：填上自己的大模型密钥">🤖 AI：关</button>
       <button class="icon-btn" id="recBtn">📜 我的聆听<span id="recCount" class="hidden"></span></button>
     </div>
   </header>
@@ -38,11 +37,19 @@
       <h1>乐龄聆听计划</h1>
       <p>挑一首熟悉的曲子，跟着它一句一句地听。<br>不用懂乐理，也不用记名字——听出来，就是你的。</p>
       <div class="quote">我不会直接告诉你答案——因为最好的答案，是你自己听出来的。</div>
+      <button class="senior-cta" onclick="Senior.startFirst()">▶ 从第一首开始听（熟悉的《茉莉花》）</button>
+    </div>
+
+    <div class="senior-steps">
+      <div class="ss"><b>1</b><span>选曲</span><i>从熟悉的旋律开始</i></div>
+      <div class="ss"><b>2</b><span>分段聆听</span><i>一句一句听，到点自动停</i></div>
+      <div class="ss"><b>3</b><span>引导提问</span><i>不告诉你答案，自己发现</i></div>
+      <div class="ss"><b>4</b><span>记录聆听</span><i>收进「我的聆听」</i></div>
     </div>
 
     <div class="senior-hint">
       <b>给陪听的人：</b>打开上面的「陪听」按钮，屏幕上会把该问的问题放大显示，您照着念就好。
-      打开「朗读」，机器会把每句话读出来。字号可以随时调大。
+      「朗读」默认已开，机器会把每句话读出来；每条消息右边还有一个 🔊，可以随时再读一遍。字号可以随时调大。
     </div>
 
     <div class="filter" id="filter"></div>
@@ -89,6 +96,13 @@
   });
 
   var Senior = {
+    startFirst: function () {
+      var list = (MZCatalog.songs || []).filter(function (s) {
+        return !s.custom && s.level === "入门";
+      });
+      var s = list[0] || MZCatalog.songs[0];
+      if (s) MZApp.openSong(s.id);
+    },
     toggleVoice: function (btn) {
       var on = !MZSenior.voice;
       MZSenior.setVoice(on);
@@ -102,6 +116,10 @@
       btn.classList.toggle("on", on);
     }
   };
+
+  /* 乐龄版：朗读默认打开（老人可以只用耳朵听） */
+  MZSenior.setVoice(true);
+  document.getElementById("voiceBtn").classList.add("on");
 </script>
 </body>
 </html>

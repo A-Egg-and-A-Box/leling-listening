@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="fs-2">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐龄聆听计划 · 陪银发一族听懂音乐</title>
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/senior.css">
+<style>
+  .topbar { flex-wrap: wrap; row-gap: 10px; }
+  .senior-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .brand small { display: none; }
+  @media (min-width: 900px) { .brand small { display: inline; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="logo">🎧</span>乐龄聆听计划<small>陪您听懂音乐</small></div>
+    <div class="spacer"></div>
+    <div class="senior-tools">
+      <div class="fs-bar" id="fsBar">
+        <span class="lb">字号</span>
+        <button data-fs="1" onclick="MZApp.setFs(1)">小</button>
+        <button data-fs="2" onclick="MZApp.setFs(2)">中</button>
+        <button data-fs="3" onclick="MZApp.setFs(3)">大</button>
+      </div>
+      <button class="icon-btn toggle-btn" id="voiceBtn" onclick="Senior.toggleVoice(this)">🔊 朗读：关</button>
+      <button class="icon-btn toggle-btn" id="compBtn" onclick="Senior.toggleCompanion(this)">👥 陪听：关</button>
+      <button class="icon-btn" id="recBtn">📜 我的聆听<span id="recCount" class="hidden"></span></button>
+    </div>
+  </header>
+
+  <section class="home" id="home">
+    <div class="hero">
+      <h1>乐龄聆听计划</h1>
+      <p>挑一首熟悉的曲子，跟着它一句一句地听。<br>不用懂乐理，也不用记名字——听出来，就是你的。</p>
+      <div class="quote">我不会直接告诉你答案——因为最好的答案，是你自己听出来的。</div>
+    </div>
+
+    <div class="senior-hint">
+      <b>给陪听的人：</b>打开上面的「陪听」按钮，屏幕上会把该问的问题放大显示，您照着念就好。
+      打开「朗读」，机器会把每句话读出来。字号可以随时调大。
+    </div>
+
+    <div class="filter" id="filter"></div>
+    <div style="margin-bottom:24px">
+      <input class="search-box" id="search" placeholder="想听什么？输入曲名或作曲家…">
+    </div>
+    <div class="track-grid" id="grid"></div>
+  </section>
+
+  <section class="chat-view hidden" id="chatView">
+    <div class="subbar">
+      <button class="back" onclick="MZApp.goHome()" aria-label="返回曲库">← 返回</button>
+      <div class="at" id="subTitle"></div>
+    </div>
+    <div class="companion" id="companion" aria-live="polite"></div>
+    <div class="stage-bar" id="stageBar"></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="composer" id="composer"></div>
+  </section>
+</div>
+
+<div class="sheet-mask" id="recordsSheet">
+  <div class="sheet">
+    <h3>我的聆听</h3>
+    <div id="recordsBody"></div>
+    <div style="margin-top:18px;text-align:right">
+      <button class="icon-btn" onclick="MZApp.hideRecords()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared/catalog.js"></script>
+<script src="shared/audio.js"></script>
+<script src="shared/engine.js"></script>
+<script src="shared/app.js"></script>
+<script src="shared/senior.js"></script>
+<script>
+  MZApp.init({ senior: true });
+  MZSenior.init({
+    chatEl: document.getElementById("chat"),
+    bannerEl: document.getElementById("companion")
+  });
+
+  var Senior = {
+    toggleVoice: function (btn) {
+      var on = !MZSenior.voice;
+      MZSenior.setVoice(on);
+      btn.textContent = on ? "🔊 朗读：开" : "🔊 朗读：关";
+      btn.classList.toggle("on", on);
+    },
+    toggleCompanion: function (btn) {
+      var on = !MZSenior.companion;
+      MZSenior.setCompanion(on);
+      btn.textContent = on ? "👥 陪听：开" : "👥 陪听：关";
+      btn.classList.toggle("on", on);
+    }
+  };
+</script>
+</body>
+</html>

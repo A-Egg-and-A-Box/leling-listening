@@ -1,0 +1,106 @@
+/* ============================================================
+ * 乐龄版皮肤 · 适老化
+ * 设计目标：看得清、点得准、听得懂、有人陪。
+ *  - 暖色低刺激配色，深色文字压在浅色底上，对比度高
+ *  - 字号三档可调，按钮与点击区域放大
+ *  - 边框加粗，减少「细线看不清」的问题
+ * ============================================================ */
+
+/* 字号三档（由 app.js 切 class） */
+html.fs-1 {
+  --fs: 17px; --fs-lg: 19px; --fs-sm: 15.5px; --fs-xs: 13px; --fs-hero: 34px;
+  --btn: 46px; --av: 38px; --card-w: 168px; --cover-h: 112px;
+}
+html.fs-2 {
+  --fs: 20px; --fs-lg: 22.5px; --fs-sm: 18px; --fs-xs: 15px; --fs-hero: 38px;
+  --btn: 54px; --av: 44px; --card-w: 188px; --cover-h: 124px;
+}
+html.fs-3 {
+  --fs: 24px; --fs-lg: 27px; --fs-sm: 21px; --fs-xs: 17px; --fs-hero: 44px;
+  --btn: 62px; --av: 50px; --card-w: 210px; --cover-h: 138px;
+}
+
+:root {
+  --bg: #FBF6EF;
+  --card: #FFFFFF;
+  --card2: #F5EBDF;
+  --border: #D8C6AF;
+  --text: #241E19;
+  --muted: #6B5F56;
+
+  --accent: #B85C2E;
+  --accent-soft: rgba(184, 92, 46, .12);
+  --gold: #B58A2E;
+  --gold-soft: #FBF0D8;
+  --gold-text: #8A6620;
+
+  --grad: linear-gradient(135deg, #C2703D, #E0A458);
+  --grad-user: linear-gradient(135deg, #5E8B6E, #7E9B87);
+  --on-accent: #FFFFFF;
+  --bar-bg: rgba(251, 246, 239, .94);
+  --bot-bubble: #FFFFFF;
+
+  --font: "Microsoft YaHei", "PingFang SC", -apple-system, "Segoe UI", sans-serif;
+
+  --sp-3: 16px;
+  --sp-4: 22px;
+  --radius: 20px;
+  --app-w: 1000px;
+  --logo: 36px;
+}
+
+/* 加粗边框，提升辨识度 */
+.bubble, .track-card, .icon-btn, .chip, .quick-btn, .listen-card,
+.reveal, .extend, .summary, .search-box, .input-bar input, .stage-chip, .sheet {
+  border-width: 2px;
+}
+
+/* 加深主文字，避免浅灰看不清 */
+.hero p, .track-meta .c, .listen-tip, .summary-empty, .rec .ra { color: #5A5049; }
+.msg.bot .bubble { box-shadow: 0 2px 8px rgba(90, 70, 50, .07); }
+
+/* 更大的点击目标 */
+.track-card { min-height: 100%; }
+.chip { padding: 12px 24px; }
+.quick-btn { padding: 13px 22px; }
+.listen-btn { padding: 15px 30px; }
+.subbar .back { min-width: var(--btn); height: var(--btn); font-size: var(--fs-lg); }
+
+/* 聚焦轮廓更明显，方便键盘与低视力用户 */
+.track-card:focus-visible, .chip:focus-visible, .quick-btn:focus-visible,
+.listen-btn:focus-visible, .icon-btn:focus-visible, .send-btn:focus-visible,
+.input-bar input:focus-visible {
+  outline: 4px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* 乐龄版专属控件 */
+.senior-tools { display: flex; gap: 8px; align-items: center; }
+.fs-bar { display: flex; gap: 6px; align-items: center; }
+.fs-bar .lb { font-size: var(--fs-xs); color: var(--muted); }
+.fs-bar button {
+  min-width: calc(var(--btn) - 8px); height: calc(var(--btn) - 8px);
+  border-radius: 12px; border: 2px solid var(--border); background: var(--card2);
+  color: var(--text); cursor: pointer; font-family: inherit; font-size: var(--fs-sm);
+}
+.fs-bar button.active { background: var(--grad); color: var(--on-accent); border-color: transparent; font-weight: 700; }
+.toggle-btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* 陪听提示条 */
+.companion {
+  display: none; flex-shrink: 0; margin: 0 var(--sp-4) var(--sp-3);
+  padding: 16px 20px; border-radius: var(--radius);
+  background: var(--gold-soft); border: 2px solid var(--gold);
+}
+.companion.on { display: block; }
+.companion .ct { font-size: var(--fs-xs); font-weight: 700; color: var(--gold-text); letter-spacing: 1px; }
+.companion .cq { font-size: var(--fs-lg); font-weight: 700; margin-top: 8px; color: var(--text); }
+.companion .ch { font-size: var(--fs-sm); color: var(--muted); margin-top: 8px; }
+
+/* 乐龄版首页提示 */
+.senior-hint {
+  margin: 0 auto 22px; max-width: 40em; padding: 16px 22px;
+  border-radius: var(--radius); background: var(--card2); border: 2px solid var(--border);
+  font-size: var(--fs-sm); color: var(--muted);
+}
+.senior-hint b { color: var(--accent); }

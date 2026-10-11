@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音乐作品助手 · 引导式音乐鉴赏（改进版）</title>
+<link rel="stylesheet" href="shared/base.css">
+<style>
+/* ---------- 通用版皮肤：延续原作的深色基调，但不再依赖任何后端 ---------- */
+:root {
+  --bg: #0b1020;
+  --card: #151c38;
+  --card2: #1c2550;
+  --border: #2a3566;
+  --text: #eaf0ff;
+  --muted: #9aa6cf;
+
+  --accent: #8b7cff;
+  --accent-soft: rgba(139, 124, 255, .14);
+  --gold: #f5c66b;
+  --gold-soft: rgba(245, 198, 107, .12);
+  --gold-text: #f5c66b;
+
+  --grad: linear-gradient(135deg, #8b7cff, #4fd6e8);
+  --grad-user: linear-gradient(135deg, #6d5cff, #4f8fe8);
+  --on-accent: #0b1020;
+  --bar-bg: rgba(11, 16, 32, .86);
+  --bot-bubble: #1b2347;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  --fs: 15px;
+  --fs-lg: 16.5px;
+  --fs-sm: 13.5px;
+  --fs-xs: 11.5px;
+  --fs-hero: 32px;
+
+  --sp-3: 14px;
+  --sp-4: 18px;
+  --radius: 18px;
+  --app-w: 860px;
+  --card-w: 152px;
+  --cover-h: 104px;
+  --btn: 40px;
+  --av: 34px;
+  --logo: 32px;
+}
+.bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; }
+.orb1 { width: 420px; height: 420px; background: rgba(139,124,255,.16); top: -120px; left: -120px; }
+.orb2 { width: 340px; height: 340px; background: rgba(79,214,232,.12); bottom: -80px; right: -80px; }
+.app { position: relative; z-index: 1; }
+.note-line { font-size: var(--fs-xs); color: var(--muted); margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="logo">🎵</span>音乐作品助手<small>引导式音乐鉴赏</small></div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="recBtn">📜 我的聆听<span id="recCount" class="hidden"></span></button>
+  </header>
+
+  <section class="home" id="home">
+    <div class="hero">
+      <h1>音乐作品助手</h1>
+      <p>选一首曲子，从易到难，跟着它慢慢听、慢慢说。</p>
+      <div class="quote">我不会直接告诉你答案——因为最好的答案，是你自己听出来的。</div>
+      <div class="note-line">全部离线运行 · 不联网、不注册 · 旋律由浏览器实时合成</div>
+    </div>
+    <div class="filter" id="filter"></div>
+    <div style="margin-bottom:22px">
+      <input class="search-box" id="search" placeholder="搜索曲名、作曲家或时期…">
+    </div>
+    <div class="track-grid" id="grid"></div>
+  </section>
+
+  <section class="chat-view hidden" id="chatView">
+    <div class="subbar">
+      <button class="back" onclick="MZApp.goHome()" aria-label="返回">←</button>
+      <div class="at" id="subTitle"></div>
+    </div>
+    <div class="stage-bar" id="stageBar"></div>
+    <div class="chat" id="chat"></div>
+    <div class="composer" id="composer"></div>
+  </section>
+</div>
+
+<div class="sheet-mask" id="recordsSheet">
+  <div class="sheet">
+    <h3>我的聆听</h3>
+    <div id="recordsBody"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="icon-btn" onclick="MZApp.hideRecords()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared/catalog.js"></script>
+<script src="shared/audio.js"></script>
+<script src="shared/engine.js"></script>
+<script src="shared/app.js"></script>
+<script>MZApp.init({ senior: false });</script>
+</body>
+</html>

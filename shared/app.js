@@ -10,6 +10,15 @@
   var Player = global.MZPlayer;
   var LLM = global.MZLLM;
 
+  var BILI_SEARCH = "https://search.bilibili.com/all?keyword=";
+
+  function mk(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
   var App = {
     senior: false,
     filter: "全部",
@@ -118,9 +127,10 @@
       if (!list.length) {
         var e = document.createElement("div");
         e.className = "empty";
-        e.textContent = "没有找到曲目，换个词试试。";
+        e.textContent = this.keyword
+          ? "曲库里暂时没有《" + this.keyword + "》。没关系——到 B 站去搜，或用下面的框粘贴链接，一样能听。"
+          : "没有找到曲目，换个词试试。";
         grid.appendChild(e);
-        return;
       }
       list.forEach(function (s) {
         var card = document.createElement("button");
@@ -152,6 +162,62 @@
         card.onclick = function () { self.openSong(s.id); };
         grid.appendChild(card);
       });
+      grid.appendChild(this.toolRow());
+    },
+
+    /* ---------- 「曲库之外」入口：去 B 站搜 / 粘贴链接直接听 ---------- */
+    toolRow: function () {
+      var wrap = mk("div", "tool-row");
+      wrap.appendChild(this.searchCard());
+      wrap.appendChild(this.pasteCard());
+      return wrap;
+    },
+
+    searchCard: function () {
+      var self = this;
+      var kw = this.keyword;
+      var card = mk("div", "tool-card");
+      card.appendChild(mk("div", "tc-t", "🔍 想听曲库以外的歌？"));
+      card.appendChild(mk("div", "tc-d", kw
+        ? "到 B 站搜「" + kw + "」，挑一段喜欢的，再把链接粘到右边，直接在页面里听。"
+        : "在上面搜索框输入曲名，这里就能帮你去 B 站找。曲库里没有的，一样能听。"));
+      var btn = mk("button", "tc-btn", kw ? "🎬 去 B 站搜「" + kw + "」" : "🎬 打开 B 站搜索");
+      btn.onclick = function () {
+        if (kw) window.open(BILI_SEARCH + encodeURIComponent(kw), "_blank", "noopener");
+        else if (self.el.search) self.el.search.focus();
+      };
+      card.appendChild(btn);
+      return card;
+    },
+
+    pasteCard: function () {
+      var self = this;
+      var card = mk("div", "tool-card");
+      card.appendChild(mk("div", "tc-t", "🔗 粘贴 B 站链接，直接在页面里听"));
+      card.appendChild(mk("div", "tc-d", "复制 B 站视频链接（或 BV 号）粘进来，用同一套「先听后说」的引导陪你听，不用跳走。"));
+      var line = mk("div", "tc-line");
+      var inp = mk("input", "tc-in");
+      inp.type = "text";
+      inp.placeholder = "https://www.bilibili.com/video/BV… 或 BV…";
+      var btn = mk("button", "tc-btn", "开始听");
+      var err = mk("div", "tc-err", "");
+      function go() {
+        var m = (inp.value || "").match(/BV[0-9A-Za-z]{10}/);
+        if (!m) {
+          err.textContent = "没认出 BV 号，请粘贴完整的 B 站链接或 12 位 BV 号。";
+          inp.focus();
+          return;
+        }
+        err.textContent = "";
+        self.openBvid(m[0]);
+      }
+      btn.onclick = go;
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
+      line.appendChild(inp);
+      line.appendChild(btn);
+      card.appendChild(line);
+      card.appendChild(err);
+      return card;
     },
 
     /* ---------- 路由 ---------- */
@@ -167,6 +233,43 @@
 
     openSong: function (id) {
       var song = Catalog.byId(id);
+      if (!song) return;
+      if (song.custom) { this.openCustom(); return; }
+      this.openSongObj(song);
+    },
+
+    /* 曲库之外：输入曲名，用通用框架陪听（没有预置录音时给 B 站搜索入口） */
+    openCustom: function () {
+      var name = (this.keyword || "").trim();
+      if (!name) {
+        name = (window.prompt("想听哪一首？\n（曲库里没有也没关系，输入曲名即可）", "") || "").trim();
+      }
+      if (!name) { if (this.el.search) this.el.search.focus(); return; }
+      var base = Catalog.byId("custom");
+      var song = Object.assign({}, base, {
+        title: name,
+        searchTerm: name,
+        custom: true
+      });
+      delete song.bvid;
+      delete song.videoTitle;
+      this.openSongObj(song);
+    },
+
+    /* 曲库之外：粘贴 B 站链接 / BV 号，直接在页面里听 */
+    openBvid: function (bvid) {
+      var base = Catalog.byId("custom");
+      var song = Object.assign({}, base, {
+        title: "自选曲目",
+        searchTerm: "",
+        custom: true,
+        bvid: bvid,
+        videoTitle: "B 站视频 " + bvid
+      });
+      this.openSongObj(song);
+    },
+
+    openSongObj: function (song) {
       if (!song) return;
       this.el.home.classList.add("hidden");
       this.el.chatView.classList.remove("hidden");
@@ -186,7 +289,7 @@
     },
 
     restart: function () {
-      if (this.session) this.openSong(this.session.song.id);
+      if (this.session) this.openSongObj(this.session.song);
     },
 
     updateStage: function (label, i, total) {

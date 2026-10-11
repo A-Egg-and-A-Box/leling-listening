@@ -28,6 +28,11 @@
     return n;
   }
 
+  function mmss(sec) {
+    var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
   function Session(opts) {
     this.song = opts.song;
     this.chat = opts.chatEl;
@@ -118,9 +123,11 @@
       : "先在上面去 B 站找到这首歌，听这一段，再回答问题。"));
 
     if (s.bvid && part.t != null) {
-      var seekBtn = el("button", "listen-btn", "▶ 从这一句开始听");
-      seekBtn.onclick = function () { Player.seek(part.t); };
+      var at = part.t;
+      var seekBtn = el("button", "listen-btn", "▶ 从 " + mmss(at) + " 开始听「" + part.label + "」");
+      seekBtn.onclick = function () { Player.seek(at, part.p); };
       card.appendChild(seekBtn);
+      card.appendChild(el("div", "listen-fine", "落点不对？用播放器下方的「跳到 分:秒」自己微调。"));
     }
     return card;
   };
@@ -178,7 +185,7 @@
 
   Session.prototype.replay = function (part) {
     if (!this.song.bvid) return;
-    Player.seek(part && part.t != null ? part.t : 0);
+    Player.seek(part && part.t != null ? part.t : 0, part && part.p);
   };
 
   Session.prototype.answer = function (text, part) {

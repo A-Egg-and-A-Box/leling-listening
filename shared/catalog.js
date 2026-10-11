@@ -3,8 +3,9 @@
  * 「音乐作品助手」与「乐龄聆听计划」两个版本共用这一份数据。
  *
  * 每首曲子包含：
- *   motif  —— 主题旋律片段（用于离线合成播放，格式 "音名:拍数"）
- *   parts  —— 分段聆听：把主题切成若干句，每句配一个引导问题
+ *   parts  —— 分段聆听：把主题切成若干句，每句配一个引导问题；
+ *            每句另有 t（秒）与可选的 p（分 P），点一下就能跳到
+ *            对应乐句开始听，不用每次从头放。
  *   reveal —— 全部听完之后才揭晓的「答案」
  *   extend —— 延伸小知识
  * 设计原则：先让人听，再让人说，最后才给结论。
@@ -340,7 +341,7 @@
       emoji: "🎲",
       hue: 275,
       custom: true,
-      intro: "这一首由你来定。放上你喜欢的任何一段音乐，我们用一个通用框架来听。",
+      intro: "这一首由你来定。点上面的按钮去 B 站找它；或回到首页把 B 站链接粘进来，我就能在这里直接放给你听，再陪你一句一句地听。",
       motif: "",
       parts: [
         { label: "听旋律", from: 0, to: 0, guide: "它的旋律是在往上走、往下走，还是原地打转？", hint: "用手比划一下高低，感觉会更清楚。" },
@@ -377,9 +378,47 @@
     rite:         { bvid: "BV1J7SQBiET1", title: "斯特拉文斯基《春之祭》（拉特尔 / 柏林爱乐）" }
   };
 
+  /* ---------- 分段聆听 · 跳转时间点 ----------
+   * 每首曲子 3 句的起始秒数，对准上面那个 bvid 的录音：
+   *   swan / moldau / pictures / rite 取自 B 站官方分段或 UP 主简介里的时间轴；
+   *   其余取该作品主题在录音中的常见进入位置（0:00 表示主题就在开头）。
+   * 目标是「点一下直接跳进这一句」，落点与录音略有出入时，
+   * 可用播放器下方的「跳到 分:秒」手动微调 —— 不做假，也不硬凑。
+   */
+  var TIMES = {
+    peter:        [120, 165, 120],
+    elise:        [0, 12, 0],
+    ode:          [222, 268, 222],
+    canon:        [0, 10, 0],
+    molihua:      [0, 30, 0],
+    danube:       [45, 110, 45],
+    erquan:       [0, 42, 0],
+    moonlight:    [0, 65, 0],
+    liangzhu:     [235, 300, 235],
+    swan:         [0, 40, 0],
+    fate:         [0, 5, 0],
+    moldau:       [48, 105, 48],
+    overture1812: [0, 62, 0],
+    pictures:     [0, 55, 0],
+    neworld:      [0, 45, 0],
+    morning:      [0, 48, 0],
+    rite:         [0, 11, 0]
+  };
+
+  /* 整乐章分成多个分 P 的曲子：「自新大陆」第二乐章才是《念故乡》 */
+  var PAGE = { neworld: 2 };
+
   SONGS.forEach(function (s) {
     var v = VIDEO[s.id];
     if (v) { s.bvid = v.bvid; s.videoTitle = v.title; }
+    var ts = TIMES[s.id];
+    if (ts) {
+      if (PAGE[s.id]) s.p = PAGE[s.id];
+      s.parts.forEach(function (part, i) {
+        part.t = ts[i] != null ? ts[i] : 0;
+        if (PAGE[s.id]) part.p = PAGE[s.id];
+      });
+    }
   });
 
   global.MZCatalog = {

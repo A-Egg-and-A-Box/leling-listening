@@ -327,3 +327,27 @@ html, body { height: 100%; }
 .icon-btn.strong { background: var(--grad); color: var(--on-accent); border-color: transparent; font-weight: 700; }
 
 .hidden { display: none !important; }
+
+/* ---------- 曲库之外的入口（去 B 站搜 / 粘贴链接直接听） ---------- */
+.tool-row { grid-column: 1/-1; display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: 4px; }
+.tool-card {
+  flex: 1 1 300px; min-width: 260px; padding: 16px 18px; border-radius: var(--radius);
+  border: 1px dashed var(--border); background: var(--card2);
+}
+.tool-card .tc-t { font-size: var(--fs); font-weight: 700; margin-bottom: 6px; }
+.tool-card .tc-d { font-size: var(--fs-sm); color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.tool-card .tc-line { display: flex; gap: 8px; flex-wrap: wrap; }
+.tool-card .tc-in {
+  flex: 1 1 180px; min-width: 160px; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  font-family: inherit; font-size: var(--fs-sm); outline: none;
+}
+.tool-card .tc-in:focus { border-color: var(--accent); }
+.tool-card .tc-btn {
+  padding: 10px 18px; border-radius: 999px; border: none; background: var(--grad);
+  color: var(--on-accent); font-family: inherit; font-size: var(--fs-sm);
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.tool-card .tc-btn:hover { filter: brightness(1.06); }
+.tool-card .tc-err { font-size: var(--fs-xs); color: #A33B2A; margin-top: 8px; min-height: 1em; }
+.listen-fine { font-size: var(--fs-xs); color: var(--muted); margin-top: 8px; }

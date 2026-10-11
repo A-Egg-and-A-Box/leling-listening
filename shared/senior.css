@@ -151,3 +151,43 @@ html.fs-3 {
 .senior-steps .ss span { font-size: var(--fs); font-weight: 700; }
 .senior-steps .ss i { font-size: var(--fs-xs); color: var(--muted); font-style: normal; }
 @media (max-width: 720px) { .senior-steps { grid-template-columns: repeat(2, 1fr); } }
+
+/* ============================================================
+ * 手机端：字号整体再收一档，顶栏压成两行
+ * （桌面端「大字号」是为了远距离看得清；手机屏幕离眼睛近，
+ *   同样的字号反而显得又大又挤，所以单独收一档。）
+ * ============================================================ */
+@media (max-width: 720px) {
+  html.fs-1 { --fs: 16px; --fs-lg: 17.5px; --fs-sm: 15px; --fs-xs: 13px; --fs-hero: 25px; --btn: 42px; --av: 34px; --card-w: 148px; --cover-h: 98px; }
+  html.fs-2 { --fs: 18px; --fs-lg: 20px; --fs-sm: 16px; --fs-xs: 14px; --fs-hero: 27px; --btn: 46px; --av: 38px; --card-w: 154px; --cover-h: 102px; }
+  html.fs-3 { --fs: 21px; --fs-lg: 23px; --fs-sm: 18px; --fs-xs: 15px; --fs-hero: 31px; --btn: 52px; --av: 42px; --card-w: 166px; --cover-h: 110px; }
+
+  .topbar { padding: 8px 12px; gap: 6px; row-gap: 6px; }
+  .brand { font-size: 16px; }
+  /* 手机上把「占位撑杆」去掉，并让顶栏各控件直接参与换行（display:contents），
+     这样它们会尽可能挤在一行里，顶栏从三行收成两行 */
+  .topbar .spacer { display: none; }
+  .topbar .senior-tools { display: contents; }
+  .fs-bar { gap: 3px; }
+  .fs-bar .lb { display: none; }
+  .fs-bar button { min-width: 30px; height: 30px; border-radius: 8px; font-size: 13px; }
+  .topbar .icon-btn { height: 34px; padding: 0 8px; font-size: 13px; }
+  .subbar .back { border-radius: 10px; font-size: var(--fs-sm); }
+
+  .hero { padding: 22px 2px 16px; }
+  .senior-cta { margin-top: 16px; padding: 14px 20px; font-size: var(--fs); }
+  .senior-hint { padding: 12px 14px; font-size: var(--fs-xs); margin-bottom: 16px; }
+  .senior-steps { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+  .senior-steps .ss { padding: 10px 8px; gap: 4px; border-radius: 14px; }
+  .senior-steps .ss b { width: 28px; height: 28px; line-height: 28px; font-size: var(--fs-sm); }
+  .senior-steps .ss span { font-size: var(--fs-sm); }
+  .senior-steps .ss i { font-size: var(--fs-xs); }
+
+  .chip { min-height: 38px; padding: 8px 14px; font-size: var(--fs-sm); }
+  .quick-btn, .listen-btn { min-height: var(--btn); font-size: var(--fs); border-radius: 13px; padding: 11px 16px; }
+  .send-btn { width: var(--btn); height: var(--btn); }
+  .speak-btn { margin-top: 9px; padding: 8px 14px; font-size: var(--fs-xs); }
+  .seg-line .ps-in { width: 80px; padding: 10px 10px; font-size: var(--fs-sm); }
+  .companion { padding: 12px 14px; }
+  .companion .cq { font-size: var(--fs); }
+}

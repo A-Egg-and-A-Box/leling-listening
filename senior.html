@@ -50,7 +50,7 @@
     <div class="senior-hint">
       <b>给陪听的人：</b>打开上面的「陪听」按钮，屏幕上会把该问的问题放大显示，您照着念就好。
       「朗读」默认已开，机器会把每句话读出来；每条消息右边还有一个 🔊，可以随时再读一遍。字号可以随时调大。
-    </div>
+      <br><b>手机上看：</b>第一次进页面请先点一下屏幕任意地方（浏览器要求第一次发声必须由点击触发），并确认手机没有开静音；之后再进来的每句话都会自动读。</div>
 
     <div class="filter" id="filter"></div>
     <div style="margin-bottom:24px">
@@ -97,10 +97,8 @@
 
   var Senior = {
     startFirst: function () {
-      var list = (MZCatalog.songs || []).filter(function (s) {
-        return !s.custom && s.level === "入门";
-      });
-      var s = list[0] || MZCatalog.songs[0];
+      /* 按钮写的是《茉莉花》，就必须开《茉莉花》——按 id 精确取，不靠数组顺序 */
+      var s = MZCatalog.byId("molihua") || MZCatalog.songs[0];
       if (s) MZApp.openSong(s.id);
     },
     toggleVoice: function (btn) {
@@ -119,7 +117,8 @@
 
   /* 乐龄版：朗读默认打开（老人可以只用耳朵听） */
   MZSenior.setVoice(true);
-  document.getElementById("voiceBtn").classList.add("on");
+  var _vb = document.getElementById("voiceBtn");
+  if (_vb && !MZSenior._broken) _vb.classList.add("on");
 </script>
 </body>
 </html>

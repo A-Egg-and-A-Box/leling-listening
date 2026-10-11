@@ -364,3 +364,43 @@ html, body { height: 100%; }
   border-radius: 50%; background: currentColor; animation: segPulse 1s infinite;
 }
 @keyframes segPulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* ============================================================
+ * 手机端适配（两个版本共用）
+ * 小屏上收紧留白与控件尺寸，顶栏尽量排成一行，
+ * 避免出现「字太大、按钮堆成好几行」的乱象。
+ * ============================================================ */
+@media (max-width: 720px) {
+  :root {
+    --sp-3: 11px;
+    --sp-4: 13px;
+    --fs-hero: 26px;
+    --fs-lg: 16.5px;
+  }
+  /* 手机浏览器地址栏会伸缩，用动态视口高度顶住底部，避免内容被挡住 */
+  .app { height: 100dvh; }
+
+  .topbar { padding: 9px var(--sp-4); gap: 8px; flex-wrap: wrap; row-gap: 8px; }
+  .brand { font-size: var(--fs); gap: 7px; }
+  .brand small { display: none; }
+  .brand .logo { width: 28px; height: 28px; border-radius: 8px; font-size: 15px; }
+  .icon-btn { min-width: 0; height: 36px; padding: 0 10px; font-size: var(--fs-sm); border-radius: 10px; }
+
+  .hero { padding: 24px 4px 18px; }
+  .hero p { font-size: var(--fs-sm); }
+  .hero .quote { font-size: var(--fs-sm); }
+
+  .home { padding: 0 var(--sp-4) 40px; }
+  .track-grid { grid-template-columns: repeat(2, 1fr); }
+  .track-meta { padding: 10px 11px 12px; }
+  .chip { padding: 8px 14px; font-size: var(--fs-sm); }
+
+  .tool-card { flex: 1 1 100%; min-width: 0; padding: 14px 14px; }
+
+  .msg { max-width: 100%; gap: 8px; }
+  .bubble { padding: 11px 13px; }
+
+  .player-dock { padding: 8px var(--sp-4) 2px; }
+  .player-card { padding: 8px; }
+  .player-bar { gap: 8px; }
+}
